@@ -48,4 +48,4 @@ COPY . .
 EXPOSE 3030
 
 # Run the application.
-CMD uvicorn 'app:app' --host=0.0.0.0 --port=3030
+CMD uvicorn 'app:app' --host=0.0.0.0 --port=8080
