@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: docker-python-demo
-  namespace: default
+  namespace: mine
 spec:
   replicas: 1
   selector:
@@ -32,18 +32,18 @@ spec:
             - name: POSTGRES_PORT
               value: "5432"
           ports:
-            - containerPort: 8080
+            - containerPort: 3030
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: service-entrypoint
-  namespace: default
+  namespace: mine
 spec:
   type: NodePort
   selector:
     service: fastapi
   ports:
-    - port: 8080
-      targetPort: 8080
-      nodePort: 30000
+    - port: 3030
+      targetPort: 3030
+      nodePort: 30001
