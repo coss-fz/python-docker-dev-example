@@ -1,3 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/data/postgres  # Puedes cambiar esta ruta o usar otro tipo de almacenamiento en la nube si es necesario.
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,27 +27,28 @@ spec:
         app: postgres
     spec:
       containers:
-        - name: postgres
-          image: postgres
-          ports:
-            - containerPort: 5432
-          env:
-            - name: POSTGRES_DB
-              value: example
-            - name: POSTGRES_USER
-              value: postgres
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
-          volumeMounts:
-            - name: postgres-data
-              mountPath: /var/lib/postgresql/data
+      - name: postgres
+        image: postgres
+        ports:
+          - containerPort: 5432
+        env:
+          - name: POSTGRES_DB
+            value: example
+          - name: POSTGRES_USER
+            value: postgres
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_PASSWORD
+        volumeMounts:
+          - name: postgres-data
+            mountPath: /var/lib/postgresql/data
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
             claimName: postgres-pvc
+
 ---
 apiVersion: v1
 kind: Service
@@ -46,6 +60,7 @@ spec:
     - port: 5432
   selector:
     app: postgres
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -58,6 +73,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
+
 ---
 apiVersion: v1
 kind: Secret
@@ -66,4 +82,4 @@ metadata:
   namespace: default
 type: Opaque
 data:
-  POSTGRES_PASSWORD: cG9zdGdyZXNfcGFzc3dvcmQ= # Base64 encoded password (e.g., 'postgres_password')
+  POSTGRES_PASSWORD: cG9zdGdyZXNfcGFzc3dvcmQ=  # Base64 encoded password (e.g., 'postgres_password')
